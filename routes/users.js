@@ -24,7 +24,7 @@ router.post('/login', function(req, res, next) {
 	});
 });
 
-router.post('/create', function(req, res, next) {
+router.post('/', function(req, res, next) {
 	server.db.collection('users').insertOne({ username: req.body.username, email: req.body.email, password: req.body.password}, (err, resp) => {
 		if(err) throw err;
 		console.log(req.body);
@@ -35,11 +35,6 @@ router.post('/create', function(req, res, next) {
 			res.render('index', {loggerMessage: message, loggerStatus: status});
 		}
 	});
-});
-
-router.get('/logout', function (req, res, next) {
-	req.session.destroy();
-	res.redirect('/');
 });
 
 module.exports = router;

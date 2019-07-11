@@ -6,8 +6,9 @@
 @purple-dark: darken(@purple, 30%);
 @purple-light: lighten(@purple, 30%);
 @white: #edf2f4;
-@grey: darken(@white, 10%);
-@grey-dark: darken(@white, 20%);
+@grey: darken(@white, 5%);
+@grey-dark: darken(@white, 10%);
+@grey-darker: darken(@white, 15%);
 @gunmetal: #2b2d42;
 @green: #62c65d;
 @red: #dd465b;
@@ -17,6 +18,7 @@
 /********************/
 
 body {
+	background-color: @grey;
 	padding: 0;
 	margin: 0;
 }
@@ -59,17 +61,77 @@ a {
 	margin-right: 1rem;
 }
 
+#guest, #user, #register, .board-new {
+	background-color: @white;
+	padding: 3rem;
+	border-radius: .4rem;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+
+}
+
+.board-new {
+	margin-bottom: 3rem;
+}
+
+.board-new input[name=title] {
+	width: 50rem;
+}
+
+.btnError {
+	background-color: @red;
+}
+
+#boardList {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+
+.board-card {
+	margin-bottom: 20rem / 6;
+	width: 100rem / 3;
+	height: 200px;;
+	background-color: @white;
+	border-radius: .4rem;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+
+	i {
+		color: @white;
+		cursor: pointer;
+		
+		&:hover {
+			color: @gunmetal;
+		}
+	}
+
+	.board-header {
+		background-color: @purple;
+		padding: .6rem 1rem .6rem .2rem;
+		border-radius: .4rem .4rem 0 0;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.board-title {
+		height: 174px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 2rem;
+	}
+}
+
 /********************/
 /*		LOGGER		*/
 /********************/
 
 #logger {
 	.fas {
-		color: @grey;
+		color: @grey-dark;
 		padding-bottom: 1rem;
 
 		&:hover {
-			color: @grey-dark;
+			color: @grey-darker;
 		}
 	}
 }
@@ -85,6 +147,7 @@ nav {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 
 	a {
 		color: @white;

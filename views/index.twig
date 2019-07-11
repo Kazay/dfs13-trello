@@ -5,21 +5,27 @@
 	<blockquote>{% if loggerMessage %}{{ loggerMessage }}{% endif %}</blockquote>
 	<i id="closeLogger" class="fas fa-times-circle fa-2x"></i>
 </div>
-
-<div class="row user-block">
-	<div class="column">
-		<blockquote style='display:none;color:green;' class='succes'></blockquote>
-		<div class='boards'></div>
+<div id="boards" class="hidden">
+	<div class="row board-new flex-between flex-center">
+		<blockquote class="ml-1">Ready to organize your life ?</blockquote>
+		<button id="newBoard" class="mr-1"><i class="fas fa-plus-square"></i> Add a new board</button>
 	</div>
+	<form id="formBoard" class="board-new row hidden" method="post" accept-charset="UTF-8" action="/boards">
+		<div>
+			<h3><label for="title">New board title</label></h3>
+			<input id="title" type="text" name="title" placeholder="Enter your new board title">
+		</div>
+	</form>
+	<div id="boardList" class="row"></div>
 </div>
-<div id="guest">
+<div id="guest" class="hidden">
 	<div class="row flex-between flex-center">
 			<blockquote class="ml-1">Not a Trello member yet ? </blockquote>
-			<a class="mr-1" href="/register"><button>Create a new account</button></a>
+			<a class="mr-1" href="/register"><button><i class="fas fa-user-plus"></i> Create a new account</button></a>
 	</div>
 	<div class="row">
 		<div class="column">
-			<form id="register" method="post" accept-charset="UTF-8">
+			<form method="post" accept-charset="UTF-8">
 				<blockquote style='display:none;color:red;' class='error'>Wrong login/password combination</blockquote>
 				<h3><label for="loginName">Username or email</label></h3>
 				<input id="loginName" type="text" name="loginName" value="">
@@ -27,23 +33,52 @@
 				<input id="password" type="password" name="password">
 				<input type="submit" value="Login">
 			</form>
-			<p><a href="">Forgot your password?</a></p>
 		</div>
 	</div>
 </div>
 <script>
+	const guest = document.getElementById('guest');
+	const boards = document.getElementById('boards');
+	const submitBoard = document.querySelector('input[name="title"]');
+
+	init();
+
+	document.getElementById('newBoard').onclick = () => {
+		toggleBoardForm();
+	}
+
+	function toggleBoardForm() {
+		let btnForm = document.getElementById('newBoard');
+		let formBoard = document.getElementById('formBoard');
+		if(formBoard.classList.contains('hidden'))
+		{
+			btnForm.innerHTML = 'Cancel';
+			formBoard.classList.remove('hidden');
+			btnForm.classList.add('btnError');
+		}
+		else
+		{
+			btnForm.innerHTML = '<i class="fas fa-plus-square"></i> Add a new board';
+			formBoard.classList.add('hidden');
+			btnForm.classList.remove('btnError');
+		}	
+	}
+	
 	document.getElementById('closeLogger').onclick = () => {
 		loggerReset();
 	}
 
-	document.forms[0].onsubmit = async(e) => {
+	document.forms[1].onsubmit = async(e) => {
 		e.preventDefault();
 		login();
 	};
 
+	function init() {
+		displayBoards();
+	}
+
 	function login() {
 		let logger = document.getElementById('logger');
-		let guest = document.getElementById('guest');
 		let username = document.getElementById('username');
 		let loginName = document.querySelector('input[name="loginName"]').value;
 		let password = document.querySelector('input[name="password"]').value;
@@ -66,8 +101,65 @@
 				loggerDisplay('Welcome back '+data.username+' !', 'success');
 				guest.classList.add('hidden');
 				username.innerHTML = data.username;
-				//retrieveBoards();
+				displayBoards();
 			}
+		});
+	}
+
+	function displayBoards() {
+		let boards = document.getElementById('boards');
+		let boardList = document.getElementById('boardList');
+		let logout = document.getElementById('logout');
+
+		boardList.innerHTML = '';
+		fetch('/boards/', { headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+			},
+			method: "GET"})
+		.then(res => res.json())
+		.then(data => {
+			if(typeof data.user === 'undefined'){
+				guest.classList.remove('hidden');
+			}
+			else
+			{
+				if(!guest.classList.contains('hidden'))
+					guest.classList.add('hidden');
+
+				boards.classList.remove('hidden');
+				logout.classList.remove('hidden');
+				username.innerHTML = data.user.username;
+
+				if(data.boards.length === 0)
+					boardList.innerHTML = '<blockquote>You didn\'t create any board.</blockquote>';
+				else {
+					data.boards.forEach(element => {
+					boardList.innerHTML += '<div class="board-card"><div class="board-header" data-id="'+element._id+'"><i class="fas fa-trash deleteBoard" aria-hidden="true"></i></div><strong class="board-title">'+element.title+'</strong></div>';
+					});
+					
+					Array.from(document.getElementsByClassName('deleteBoard')).forEach(element =>{
+						element.onclick = () => {
+							deleteBoard(element.parentNode.getAttribute("data-id"));
+						}
+					});
+				}
+			}
+		})
+	}
+
+	function deleteBoard(id) {
+		let url = '/boards/' + id;
+
+		fetch(url, {
+		credentials: 'same-origin',
+		method: 'delete'})
+		.then(res => res.json())
+		.then(data => {
+			if(data.loggerStatus === 'success')
+				displayBoards()
+		
+			loggerDisplay(data.loggerMessage, data.loggerStatus)
 		});
 	}
 
