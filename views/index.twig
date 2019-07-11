@@ -135,7 +135,7 @@
 					boardList.innerHTML = '<blockquote>You didn\'t create any board.</blockquote>';
 				else {
 					data.boards.forEach(element => {
-					boardList.innerHTML += '<div class="board-card"><div class="board-header" data-id="'+element._id+'"><i class="fas fa-trash deleteBoard" aria-hidden="true"></i></div><strong class="board-title">'+element.title+'</strong></div>';
+					boardList.innerHTML += '<div class="board-card"><div class="board-header" data-id="'+element._id+'"><i class="fas fa-trash deleteBoard" aria-hidden="true"></i></div><strong class="board-title"><a href="cards/'+element._id+'">'+element.title+'</a></strong></div>';
 					});
 					
 					Array.from(document.getElementsByClassName('deleteBoard')).forEach(element =>{
