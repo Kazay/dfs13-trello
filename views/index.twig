@@ -1,6 +1,106 @@
 {% extends 'layout.twig' %}
 
 {% block body %}
-  <h1>{{title}}</h1>
-  <p>Welcome to {{title}}</p>
+<div id="logger" class="{% if loggerStatus %}{{ loggerStatus }}{% else %}hidden{% endif %} flex-between flex-center">
+	<blockquote>{% if loggerMessage %}{{ loggerMessage }}{% endif %}</blockquote>
+	<i id="closeLogger" class="fas fa-times-circle fa-2x"></i>
+</div>
+
+<div class="row user-block">
+	<div class="column">
+		<blockquote style='display:none;color:green;' class='succes'></blockquote>
+		<div class='boards'></div>
+	</div>
+</div>
+<div id="guest">
+	<div class="row flex-between flex-center">
+			<blockquote class="ml-1">Not a Trello member yet ? </blockquote>
+			<a class="mr-1" href="/register"><button>Create a new account</button></a>
+	</div>
+	<div class="row">
+		<div class="column">
+			<form id="register" method="post" accept-charset="UTF-8">
+				<blockquote style='display:none;color:red;' class='error'>Wrong login/password combination</blockquote>
+				<h3><label for="loginName">Username or email</label></h3>
+				<input id="loginName" type="text" name="loginName" value="">
+				<h3><label for="password">Password</label></h3>
+				<input id="password" type="password" name="password">
+				<input type="submit" value="Login">
+			</form>
+			<p><a href="">Forgot your password?</a></p>
+		</div>
+	</div>
+</div>
+<script>
+	document.getElementById('closeLogger').onclick = () => {
+		loggerReset();
+	}
+
+	document.forms[0].onsubmit = async(e) => {
+		e.preventDefault();
+		login();
+	};
+
+	function login() {
+		let logger = document.getElementById('logger');
+		let guest = document.getElementById('guest');
+		let username = document.getElementById('username');
+		let loginName = document.querySelector('input[name="loginName"]').value;
+		let password = document.querySelector('input[name="password"]').value;
+
+		fetch('/users/login', { headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+			},
+			credentials: 'same-origin',
+			method: "POST",
+			body: JSON.stringify({ loginName : loginName, password : password })})
+		.then(res => res.json())
+		.then(data => {
+			if(typeof data.username === 'undefined')
+			{
+				loggerDisplay('Wrong login/password combination. Try again.', 'error');
+			}
+			else
+			{
+				loggerDisplay('Welcome back '+data.username+' !', 'success');
+				guest.classList.add('hidden');
+				username.innerHTML = data.username;
+				//retrieveBoards();
+			}
+		});
+	}
+
+	function loggerReset() {
+		let logger = document.getElementById('logger');
+
+		if(logger.classList.contains('error'))
+			logger.classList.remove('error');
+		
+		if(logger.classList.contains('success'))
+			logger.classList.remove('success');
+		
+		if(!logger.classList.contains('hidden'))
+			logger.classList.add('hidden');
+
+		logger.childNodes[1].innerHTML = '';
+	}
+
+	function loggerDisplay(msg, status)
+	{
+		let logger = document.getElementById('logger');
+		
+		if(logger.classList.contains('hidden'))
+			logger.classList.remove('hidden');
+
+		logger.classList.remove('error');
+		logger.classList.remove('success');
+
+		if(!logger.classList.contains(status))
+			logger.classList.add(status);
+
+		logger.childNodes[1].innerHTML = msg;
+	}
+
+</script>
 {% endblock %}

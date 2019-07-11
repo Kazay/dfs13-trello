@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>{{ title }}</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    {% block body %}{% endblock %}
-  </body>
+	<head>
+		<title>Trello</title>
+		<link rel='stylesheet' href='/milligram/milligram.min.css'>
+		<link rel='stylesheet' href='/stylesheets/style.css' />
+		<script src="https://kit.fontawesome.com/1114378451.js"></script>
+	</head>
+	<body>
+		{% include 'nav.twig' %}
+		<div class="container">
+			{% block body %}{% endblock %}
+		</div>
+	</body>
 </html>
